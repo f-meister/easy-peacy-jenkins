@@ -1,0 +1,36 @@
+version: '3.9'
+services: 
+  jenkins:
+    image: ${DOCKER_IMAGE}
+    user: ${USER}
+    # map custom ports on native machine to outbound ports on the Jenkins container
+    ports:
+      - '${MAIN_PORT}:8080'
+      - '${CONTROLLER_PORT}:50000'
+    # expose port 22 for sshagent use
+    expose:
+      - '22'
+    container_name: ${CONTAINER_NAME}_v${VERSION}
+
+    # bind volumes
+    volumes:
+      # bind project directory to home directory (if needed)
+      #- ./:/home
+      # bind jenkins_home directory to project directory
+      - ${JENKINS_HOME}:/var/jenkins_home
+      # bind jenkins workspace directory to a separate directory for easy access
+      - ${JENKINS_WORKSPACE}:/var/jenkins_home/workspace
+      # link docker socket to native docker if docker is needed in the Jenkins container
+      #- /var/run/docker.sock:/var/run/docker.sock
+      #- /usr/local/bin/docker:/usr/local/bin/docker
+      #- /usr/local/bin/docker-compose:/usr/local/bin/docker-compose
+
+    # set working directory to home where all the original files were copied (if needed)
+    working_dir: /home
+
+    networks: 
+      - net
+
+networks:
+  net:
+    name: ${NETWORK_NAME}_v${VERSION}
